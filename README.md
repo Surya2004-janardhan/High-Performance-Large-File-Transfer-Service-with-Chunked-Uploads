@@ -282,11 +282,3 @@ large-file-transfer-service-with-chunked-uploads/
 
 - Typical: ~500 MB/s per core (network-bound in practice)
 - Concurrency: 30 chunks in parallel recommended
-
-## Contributing
-
-This is a learning/portfolio project. Follow the phase plan in `plan.md` for implementation order.
-
-## License
-
-MIT
