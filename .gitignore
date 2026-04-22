@@ -2,4 +2,11 @@ task-requirements.txt
 .env
 node_modules/
 plan.md
-dist/
+dist/.env.local
+.env.*.local
+data/
+coverage/
+.DS_Store
+.vscode/
+*.log
+npm-debug.log*
