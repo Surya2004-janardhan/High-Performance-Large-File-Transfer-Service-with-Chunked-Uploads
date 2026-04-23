@@ -1,5 +1,5 @@
 import { Client as MinioClient } from 'minio';
-import { Readable, PassThrough } from 'stream';
+import { Readable } from 'stream';
 import { StorageAdapter, StorageConfig } from './storage.types';
 import { StorageError } from '../shared/errors';
 import { getLogger } from '../config/logger';

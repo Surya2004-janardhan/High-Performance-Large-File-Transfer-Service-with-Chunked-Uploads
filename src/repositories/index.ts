@@ -6,6 +6,10 @@ export { UploadRepository } from './uploads.repository';
 export { ChunkRepository } from './chunks.repository';
 export { FileRepository } from './files.repository';
 
+import { UploadRepository } from './uploads.repository';
+import { ChunkRepository } from './chunks.repository';
+import { FileRepository } from './files.repository';
+
 let uploadRepo: UploadRepository | null = null;
 let chunkRepo: ChunkRepository | null = null;
 let fileRepo: FileRepository | null = null;

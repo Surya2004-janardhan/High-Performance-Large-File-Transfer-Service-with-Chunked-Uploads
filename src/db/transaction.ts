@@ -1,4 +1,4 @@
-import { getDatabase, runQuery } from './client';
+import { getDatabase } from './client';
 import { getLogger } from '../config/logger';
 
 const logger = getLogger();

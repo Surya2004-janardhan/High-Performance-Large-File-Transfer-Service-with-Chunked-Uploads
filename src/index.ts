@@ -1,12 +1,15 @@
 import { createApp } from './app';
 import { getConfig } from './config/env';
-import { getLogger } from './config/logger';
+import { getLogger, buildLogger } from './config/logger';
+import { initializeDatabase } from './db/client';
+import { initializeDatabaseSchema } from './db/migrate';
+import { MinIOAdapter } from './storage/minio.adapter';
 
 const logger = getLogger();
 
 /**
  * Bootstrap and start the server.
- * Load configuration, initialize database/storage (Phase 2/3), and listen for HTTP requests.
+ * Load configuration, initialize database/storage, and listen for HTTP requests.
  */
 async function startServer(): Promise<void> {
   try {
@@ -15,10 +18,35 @@ async function startServer(): Promise<void> {
     logger.info({ config: { port: config.apiPort, env: config.nodeEnv } }, 'Configuration loaded');
 
     // Initialize logger with configured level
-    const app = createApp();
+    buildLogger(config.logging.level);
 
-    // TODO: Phase 2 - Initialize database schema
-    // TODO: Phase 3 - Initialize storage adapter and ensure bucket exists
+    // Initialize database
+    logger.info({ dbPath: config.databasePath }, 'Initializing database');
+    await initializeDatabase(config.databasePath);
+    
+    // Initialize database schema
+    logger.info('Creating database schema');
+    await initializeDatabaseSchema();
+
+    // Test storage connectivity
+    logger.info(
+      {
+        endpoint: config.storage.endpoint,
+        port: config.storage.port,
+        bucket: config.storage.bucketName
+      },
+      'Initializing storage'
+    );
+    const storageAdapter = new MinIOAdapter(config.storage);
+    await storageAdapter.ensureBucketExists(config.storage.bucketName);
+
+    // Create and configure Express app with Phase 2/3 components
+    const app = createApp({
+      storageConfig: config.storage,
+      chunkSize: config.upload.chunkSizeBytes,
+      staleMinutes: config.cleanup.staleAfterMinutes,
+      cleanupIntervalSeconds: config.cleanup.intervalSeconds
+    });
 
     // Start HTTP server
     const server = app.listen(config.apiPort, () => {
@@ -27,6 +55,7 @@ async function startServer(): Promise<void> {
         `Server listening on http://localhost:${config.apiPort}`
       );
       logger.info('Health check endpoint: GET /api/health');
+      logger.info('Upload API available: POST /api/upload/init');
     });
 
     // Graceful shutdown handler

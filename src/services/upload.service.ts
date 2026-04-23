@@ -13,7 +13,7 @@ import {
   validateChunkSize,
   calculateTotalChunks
 } from '../domain/upload/upload.validators';
-import { InitUploadInput, InitUploadOutput, UploadSession } from '../domain/upload/upload.types';
+import { InitUploadInput, InitUploadOutput } from '../domain/upload/upload.types';
 import { StorageAdapter } from '../storage/storage.types';
 import { NotFoundError, ValidationError, ConflictError } from '../shared/errors';
 import { AssemblyService } from './assembly.service';
@@ -33,7 +33,7 @@ export class UploadService {
   private assemblyService: AssemblyService;
 
   constructor(private storageAdapter: StorageAdapter, private chunkSize: number) {
-    this.assemblyService = new AssemblyService(storageAdapter, fileRepo, chunkRepo);
+    this.assemblyService = new AssemblyService(storageAdapter, this.fileRepo, this.chunkRepo);
   }
 
   /**

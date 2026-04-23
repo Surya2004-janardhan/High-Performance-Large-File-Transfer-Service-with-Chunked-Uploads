@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { getDatabase, runQuery } from './client';
+import { getDatabase } from './client';
 import { getLogger } from '../config/logger';
 
 const logger = getLogger();

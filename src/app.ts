@@ -4,6 +4,14 @@ import bodyParser from 'body-parser';
 import pinoHttp from 'pino-http';
 import { v4 as uuidv4 } from 'uuid';
 import { createHealthRoutes } from './health/health.route';
+import { createUploadRoutes } from './api/upload.routes';
+import { createTestingRoutes } from './api/testing.routes';
+import { errorMiddleware } from './api/error.middleware';
+import { UploadService } from './services/upload.service';
+import { MinIOAdapter } from './storage/minio.adapter';
+import { StorageConfig } from './storage/storage.types';
+import { getFileRepository, initializeRepositories } from './repositories/index';
+import { CleanupWorker } from './workers/cleanup.worker';
 import { getLogger } from './config/logger';
 import { HEADER_REQUEST_ID } from './config/constants';
 
@@ -11,7 +19,12 @@ import { HEADER_REQUEST_ID } from './config/constants';
  * Create and configure Express application.
  * Wire up middleware, routes, and error handling.
  */
-export function createApp(): Express {
+export function createApp(options?: {
+  storageConfig?: StorageConfig;
+  chunkSize?: number;
+  staleMinutes?: number;
+  cleanupIntervalSeconds?: number;
+}): Express {
   const app = express();
   const logger = getLogger();
 
@@ -36,6 +49,31 @@ export function createApp(): Express {
     next();
   });
 
+  // Initialize repositories
+  initializeRepositories();
+
+  // Initialize storage adapter if provided
+  let cleanupWorker: CleanupWorker | null = null;
+
+  if (options?.storageConfig) {
+    const storageAdapter = new MinIOAdapter(options.storageConfig);
+    const chunkSize = options.chunkSize || 5242880; // 5MB default
+    const uploadService = new UploadService(storageAdapter, chunkSize);
+
+    const staleMinutes = options.staleMinutes || 1440; // 1 day default
+    const cleanupInterval = options.cleanupIntervalSeconds || 3600; // 1 hour default
+    cleanupWorker = new CleanupWorker(staleMinutes, cleanupInterval);
+
+    // Create routes
+    const fileRepo = getFileRepository();
+    app.use('/api/upload', createUploadRoutes(uploadService, storageAdapter, fileRepo));
+    app.use('/api/testing', createTestingRoutes(cleanupWorker));
+
+    logger.info('Upload and testing routes registered');
+  } else {
+    logger.warn('Storage config not provided; upload routes will not be available');
+  }
+
   // Health check routes
   app.use('/api/health', createHealthRoutes());
 
@@ -49,34 +87,16 @@ export function createApp(): Express {
   });
 
   // 404 handler
-  app.use((req: Request, res: Response) => {
+  app.use((_req: Request, res: Response) => {
     res.status(404).json({
       error: 'Not Found',
-      path: req.path,
-      method: req.method
+      path: _req.path,
+      method: _req.method
     });
   });
 
-  // Global error handler
-  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
-
-    logger.error({
-      requestId: req.id,
-      error: err,
-      statusCode,
-      path: req.path,
-      method: req.method
-    });
-
-    res.status(statusCode).json({
-      error: message,
-      code: err.code || 'INTERNAL_SERVER_ERROR',
-      requestId: req.id,
-      timestamp: new Date().toISOString()
-    });
-  });
+  // Global error handler (must be last)
+  app.use(errorMiddleware);
 
   return app;
 }

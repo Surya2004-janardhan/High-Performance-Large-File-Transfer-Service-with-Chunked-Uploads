@@ -1,4 +1,4 @@
-import { getOne, getAll, runQuery } from '../db/client';
+import { getOne, runQuery } from '../db/client';
 import { FileRecord } from '../domain/upload/upload.types';
 import { DatabaseError } from '../shared/errors';
 

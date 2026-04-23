@@ -5,7 +5,6 @@ const MIN_FILE_NAME_LENGTH = 1;
 const MAX_FILE_NAME_LENGTH = 255;
 const MIN_FILE_SIZE = 1024; // 1 KB
 const MAX_FILE_SIZE = 1099511627776; // 1 TB
-const MIN_CHUNK_SIZE = 1024; // 1 KB
 
 /**
  * Validate init upload payload.

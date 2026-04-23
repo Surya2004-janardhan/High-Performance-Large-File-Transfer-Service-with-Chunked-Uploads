@@ -1,5 +1,4 @@
 import sqlite3 from 'sqlite3';
-import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs/promises';
 import { getLogger } from '../config/logger';
