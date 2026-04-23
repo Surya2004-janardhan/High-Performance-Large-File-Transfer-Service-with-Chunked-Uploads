@@ -29,10 +29,10 @@ export class CleanupWorker {
     );
 
     this.interval = setInterval(() => {
-      this.runCleanupNow().catch(err => {
+      this.runCleanupNow().catch((err: any) => {
         logger.error({ error: err }, 'Cleanup worker error');
       });
-    }, this.intervalSeconds * 1000);
+    }, this.intervalSeconds * 1000) as unknown as NodeJS.Timer;
   }
 
   /**
@@ -40,7 +40,7 @@ export class CleanupWorker {
    */
   stop(): void {
     if (this.interval) {
-      clearInterval(this.interval);
+      clearInterval(this.interval as NodeJS.Timeout);
       this.interval = null;
       logger.info('Cleanup worker stopped');
     }

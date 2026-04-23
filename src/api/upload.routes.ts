@@ -3,7 +3,6 @@ import { UploadService } from '../services/upload.service';
 import { StorageAdapter } from '../storage/storage.types';
 import { HTTP_STATUS_CODE } from '../shared/http-status';
 import { getLogger } from '../config/logger';
-import { getFileRepository } from '../repositories/index';
 
 const logger = getLogger();
 
@@ -110,14 +109,16 @@ export function createUploadRoutes(
    * GET /api/download/:fileId
    * Download completed file (streamed).
    */
-  router.get('/download/:fileId', async (req: Request, res: Response, next: NextFunction) => {
+  router.get(
+    '/download/:fileId',
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { fileId } = req.params;
 
       // Get file metadata
       const fileRecord = await fileRepo.getFileById(fileId);
       if (!fileRecord) {
-        return res.status(HTTP_STATUS_CODE.NOT_FOUND).json({
+        res.status(HTTP_STATUS_CODE.NOT_FOUND).json({
           error: 'File not found',
           code: 'NOT_FOUND',
           requestId: (req as any).id
@@ -151,7 +152,8 @@ export function createUploadRoutes(
     } catch (error) {
       next(error);
     }
-  });
+  }
+  );
 
   return router;
 }

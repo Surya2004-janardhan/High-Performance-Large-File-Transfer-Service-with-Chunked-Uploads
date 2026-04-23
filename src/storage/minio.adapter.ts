@@ -114,13 +114,15 @@ export class MinIOAdapter implements StorageAdapter {
       return new Promise((resolve, reject) => {
         objectsStream.on('data', (obj) => {
           // Extract chunk index from object name: uploads/{uploadId}/chunks/{chunkIndex}
-          const match = obj.name.match(/chunks\/(\d+)$/);
-          if (match) {
-            indices.push(parseInt(match[1], 10));
+          if (obj.name) {
+            const match = obj.name.match(/chunks\/(\d+)$/);
+            if (match) {
+              indices.push(parseInt(match[1], 10));
+            }
           }
         });
 
-        objectsStream.on('error', (err) => {
+        objectsStream.on('error', (err: any) => {
           const message = err instanceof Error ? err.message : String(err);
           logger.error({ error: message, uploadId }, 'Failed to list chunks');
           reject(new StorageError(`Failed to list chunks: ${message}`));
@@ -217,7 +219,9 @@ export class MinIOAdapter implements StorageAdapter {
 
       return new Promise((resolve, reject) => {
         objectsStream.on('data', (obj) => {
-          objectsToDelete.push(obj.name);
+          if (obj.name) {
+            objectsToDelete.push(obj.name);
+          }
         });
 
         objectsStream.on('error', (err) => {

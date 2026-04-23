@@ -33,7 +33,7 @@ export class UploadService {
   private assemblyService: AssemblyService;
 
   constructor(private storageAdapter: StorageAdapter, private chunkSize: number) {
-    this.assemblyService = new AssemblyService(storageAdapter, this.fileRepo, this.chunkRepo);
+    this.assemblyService = new AssemblyService(storageAdapter, this.fileRepo);
   }
 
   /**

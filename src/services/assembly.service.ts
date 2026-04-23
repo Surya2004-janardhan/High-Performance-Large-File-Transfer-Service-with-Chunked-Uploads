@@ -2,7 +2,7 @@ import { pipeline } from 'stream/promises';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { getChunkRepository, getFileRepository } from '../repositories/index';
+import { getChunkRepository } from '../repositories/index';
 import { StorageAdapter } from '../storage/storage.types';
 import { getLogger } from '../config/logger';
 import { ValidationError } from '../shared/errors';
@@ -19,8 +19,7 @@ export class AssemblyService {
 
   constructor(
     private storageAdapter: StorageAdapter,
-    private fileRepo: any,
-    _chunkRepo: any
+    private fileRepo: any
   ) {}
 
   /**
@@ -62,12 +61,10 @@ export class AssemblyService {
         );
       }
 
-      // End write stream
-      writeStream.end();
-
-      // Wait for write to complete
-      await new Promise((resolve, reject) => {
-        writeStream.on('finish', resolve);
+      // End write stream and wait for completion
+      await new Promise<void>((resolve, reject) => {
+        writeStream.end();
+        writeStream.on('finish', () => resolve());
         writeStream.on('error', reject);
       });
 
@@ -126,7 +123,7 @@ export class AssemblyService {
 
     return (
       uploadedChunks.length === expectedChunks.length &&
-      uploadedChunks.every(idx => expectedChunks.includes(idx))
+      uploadedChunks.every((idx: number) => expectedChunks.includes(idx))
     );
   }
 }
