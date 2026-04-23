@@ -40,7 +40,7 @@ export function createApp(): Express {
   app.use('/api/health', createHealthRoutes());
 
   // Placeholder route for future API endpoints
-  app.get('/api', (req: Request, res: Response) => {
+  app.get('/api', (_req: Request, res: Response) => {
     res.json({
       message: 'Large File Transfer Service API',
       version: '1.0.0',
@@ -58,7 +58,7 @@ export function createApp(): Express {
   });
 
   // Global error handler
-  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
 

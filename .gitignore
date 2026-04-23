@@ -10,3 +10,5 @@ coverage/
 .vscode/
 *.log
 npm-debug.log*
+dist/
+build/

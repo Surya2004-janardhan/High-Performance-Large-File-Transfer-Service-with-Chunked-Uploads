@@ -13,7 +13,7 @@ export function createHealthRoutes(): Router {
    * GET /api/health
    * Return health status of API, database, and storage connectivity.
    */
-  router.get('/', async (req: Request, res: Response) => {
+  router.get('/', async (_req: Request, res: Response) => {
     try {
       const status = await healthService.getHealthStatus();
       res.status(HTTP_STATUS_CODE.OK).json(status);
