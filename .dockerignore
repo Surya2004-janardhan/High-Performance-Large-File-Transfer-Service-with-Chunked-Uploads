@@ -13,7 +13,6 @@ tests
 .eslintrc
 .prettierrc
 jest.config.js
-tsconfig.json
 *.spec.ts
 *.test.ts
 data

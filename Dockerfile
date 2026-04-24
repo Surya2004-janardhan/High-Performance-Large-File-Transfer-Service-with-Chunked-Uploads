@@ -16,6 +16,9 @@ COPY src ./src
 # Build TypeScript
 RUN npm run build
 
+# Copy non-TypeScript files (like schema.sql) to dist
+RUN mkdir -p dist/db && cp src/db/schema.sql dist/db/
+
 # Production stage
 FROM node:20-alpine
 
@@ -30,16 +33,16 @@ COPY package*.json ./
 # Install production dependencies only
 RUN npm ci --only=production && npm cache clean --force
 
-# Create data directory
-RUN mkdir -p /app/data
-
 # Copy compiled code from builder
 COPY --from=builder /app/dist ./dist
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
-# Change ownership
+# Create data directory and set ownership
+RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
+
+# Change ownership of all app files
 RUN chown -R nodejs:nodejs /app
 
 USER nodejs

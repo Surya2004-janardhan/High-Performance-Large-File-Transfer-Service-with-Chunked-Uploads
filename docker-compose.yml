@@ -22,7 +22,7 @@ services:
       - CLEANUP_ENABLED=${CLEANUP_ENABLED:-true}
       - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
-      - ./data:/app/data
+      - lft-data:/app/data
     depends_on:
       minio:
         condition: service_healthy
@@ -71,6 +71,8 @@ services:
     restart: unless-stopped
 
 volumes:
+  lft-data:
+    driver: local
   minio_data:
     driver: local
 

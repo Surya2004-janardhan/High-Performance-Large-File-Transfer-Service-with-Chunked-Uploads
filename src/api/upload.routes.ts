@@ -123,6 +123,7 @@ export function createUploadRoutes(
           code: 'NOT_FOUND',
           requestId: (req as any).id
         });
+        return;
       }
 
       // Get readable stream from storage
