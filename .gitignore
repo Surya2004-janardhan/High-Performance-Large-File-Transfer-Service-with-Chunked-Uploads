@@ -12,3 +12,6 @@ coverage/
 npm-debug.log*
 dist/
 build/
+
+# ignoring all .bin files
+*.bin

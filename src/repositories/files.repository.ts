@@ -1,6 +1,9 @@
 import { getOne, runQuery } from '../db/client';
 import { FileRecord } from '../domain/upload/upload.types';
 import { DatabaseError } from '../shared/errors';
+import { getLogger } from '../config/logger';
+
+const logger = getLogger();
 
 /**
  * Repository for managing file records after upload completion.
@@ -17,6 +20,8 @@ export class FileRepository {
     mimeType?: string
   ): Promise<FileRecord> {
     const createdAt = new Date().toISOString();
+    
+    logger.info({ fileId, uploadId, fileName }, 'Creating file record');
 
     try {
       await runQuery(
@@ -24,6 +29,8 @@ export class FileRepository {
          VALUES (?, ?, ?, ?, ?, ?)`,
         [fileId, uploadId, fileName, fileSize, mimeType || null, createdAt]
       );
+
+      logger.info({ fileId, uploadId }, 'File record created successfully');
 
       return {
         id: fileId,
@@ -34,6 +41,7 @@ export class FileRepository {
         createdAt: new Date(createdAt)
       };
     } catch (error) {
+      logger.error({ fileId, uploadId, error }, 'Failed to create file record');
       throw new DatabaseError('Failed to create file record', { fileId, uploadId });
     }
   }
@@ -42,6 +50,8 @@ export class FileRepository {
    * Get a file record by file ID.
    */
   async getFileById(fileId: string): Promise<FileRecord | undefined> {
+    logger.info({ fileId }, 'Querying file by ID');
+    
     try {
       const row = await getOne<any>(
         `SELECT id, upload_id as uploadId, file_name as fileName, file_size as fileSize,
@@ -49,6 +59,8 @@ export class FileRepository {
          FROM files WHERE id = ?`,
         [fileId]
       );
+
+      logger.info({ fileId, found: !!row }, 'File query result');
 
       if (!row) {
         return undefined;

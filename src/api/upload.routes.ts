@@ -114,6 +114,8 @@ export function createUploadRoutes(
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { fileId } = req.params;
+      
+      logger.info({ fileId, path: req.path }, 'Download request received');
 
       // Get file metadata
       const fileRecord = await fileRepo.getFileById(fileId);

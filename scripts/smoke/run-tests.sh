@@ -125,7 +125,7 @@ echo "  File ID: $FILE_ID\n"
 echo -e "${YELLOW}Test 6: Download File${NC}"
 DOWNLOAD_FILE="$TEMP_DIR/downloaded.bin"
 
-curl -s -o "$DOWNLOAD_FILE" "$API_URL/download/$FILE_ID"
+curl -s -o "$DOWNLOAD_FILE" "$API_URL/upload/download/$FILE_ID"
 
 DOWNLOADED_SIZE=$(stat -f%z "$DOWNLOAD_FILE" 2>/dev/null || stat -c%s "$DOWNLOAD_FILE" 2>/dev/null)
 
