@@ -15,3 +15,4 @@ build/
 
 # ignoring all .bin files
 *.bin
+explanation.md
